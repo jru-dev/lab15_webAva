@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Product, ProductFormData } from '@/types/product';
+import { Product, ProductFormData } from '@/types/product'; 
 
 export default function AdminPage() {
     const [products, setProducts] = useState<Product[]>([]);
