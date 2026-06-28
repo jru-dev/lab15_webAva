@@ -1,25 +1,34 @@
-// Importar el modelo correctamente
 const Product = require('../models/Product');
+const Category = require('../models/Category');
 
-// Obtener todos los productos
+// Obtener todos los productos (con categoría)
 exports.getProducts = async (req, res) => {
     try {
-        console.log('Product:', Product); // Esto te mostrará si Product está definido
-        const products = await Product.findAll();
+        const { categoryId } = req.query;
+        const where = {};
+        
+        if (categoryId) {
+            where.categoryId = categoryId;
+        }
+
+        const products = await Product.findAll({
+            where,
+            include: [{ model: Category, as: 'categoria' }]
+        });
         res.json(products);
     } catch (error) {
-        console.error('Error completo:', error);
-        res.status(500).json({ 
-            message: error.message,
-            stack: error.stack 
-        });
+        console.error('Error en getProducts:', error);
+        res.status(500).json({ message: error.message });
     }
 };
-// Obtener un producto por ID
+
+// Obtener producto por ID
 exports.getProductById = async (req, res) => {
     try {
         const { id } = req.params;
-        const product = await Product.findByPk(id);
+        const product = await Product.findByPk(id, {
+            include: [{ model: Category, as: 'categoria' }]
+        });
         
         if (!product) {
             return res.status(404).json({ message: 'Producto no encontrado' });
@@ -35,12 +44,14 @@ exports.getProductById = async (req, res) => {
 // Crear un nuevo producto
 exports.createProduct = async (req, res) => {
     try {
-        const { nombre, precio, descripcion } = req.body;
+        const { nombre, precio, descripcion, categoryId, imageUrl } = req.body;
         
         const newProduct = await Product.create({
             nombre,
             precio,
-            descripcion
+            descripcion,
+            categoryId,
+            imageUrl
         });
         
         res.status(201).json(newProduct);
@@ -54,7 +65,7 @@ exports.createProduct = async (req, res) => {
 exports.updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, precio, descripcion } = req.body;
+        const { nombre, precio, descripcion, categoryId, imageUrl } = req.body;
         
         const product = await Product.findByPk(id);
         
@@ -65,7 +76,9 @@ exports.updateProduct = async (req, res) => {
         await product.update({
             nombre,
             precio,
-            descripcion
+            descripcion,
+            categoryId,
+            imageUrl
         });
         
         res.json(product);

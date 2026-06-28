@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const productsRoutes = require('./routes/products');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 
@@ -11,6 +12,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // Rutas
 app.use('/api/products', productsRoutes);
+app.use('/api/auth', authRoutes);
+// Agregar esta línea después de las otras rutas
+app.use('/api/categories', require('./routes/categories'));
 
 // Manejo de errores 404
 app.use((req, res, next) => {
